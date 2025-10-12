@@ -20,7 +20,7 @@ export default function Header() {
           <NavLink to="/about" className={({ isActive }) => "nav__link" + (isActive ? " is-active" : "")}>Nosotros</NavLink>
           <NavLink to="/contact" className={({ isActive }) => "nav__link" + (isActive ? " is-active" : "")}>Contacto</NavLink>
           <NavLink to="/product" className={({ isActive }) => "nav__link" + (isActive ? " is-active" : "")}>Productos</NavLink>
-          <NavLink to="/product" className="nav__link position-relative ms-3">
+          <NavLink to="/cart" className="nav__link position-relative ms-3">
             🛒
             {carrito.length > 0 && (
               <span

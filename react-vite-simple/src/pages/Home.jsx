@@ -46,6 +46,7 @@ export default function Home() {
       // Si el login fue exitoso, Xano responde con un token o usuario
       if (res.data && res.data.authToken) {
         setMensaje('Bienvenido');
+        localStorage.setItem("userEmail", email); // Guarda el email
         navigate("/about");
       } else {
         setMensaje("Credenciales incorrectas.");

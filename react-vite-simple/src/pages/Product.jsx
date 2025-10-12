@@ -171,17 +171,14 @@ export default function Product() {
               setMensaje("");
               try {
                 const formData = new FormData();
-                formData.append("name", e.target.nombre.value);
-                formData.append("description", e.target.descripcion.value);
-                formData.append("price", parseFloat(e.target.precio.value));
+                formData.append("name", e.target.name.value);
+                formData.append("description", e.target.description.value);
+                formData.append("price", parseFloat(e.target.price.value));
                 formData.append("stock", parseInt(e.target.stock.value));
                 formData.append("category", parseInt(e.target.category.value));
-                if (e.target.imagen.files[0]) {
-                  formData.append("image", e.target.imagen.files[0]);
-                }
-                await api.post("/product", formData, {
-                  headers: { "Content-Type": "multipart/form-data" },
-                });
+                formData.append("image", e.target.image.value); // Ahora es una URL
+
+                await api.post("/product", formData);
                 const resLista = await api.get("/product");
                 setLista(resLista.data);
                 setMensaje("✅ Producto agregado correctamente.");
@@ -193,23 +190,23 @@ export default function Product() {
           >
             <div className="mb-3">
               <label className="form-label">Nombre</label>
-              <input type="text" name="nombre" className="form-control" required />
+              <input type="text" name="name" className="form-control" required />
             </div>
             <div className="mb-3">
               <label className="form-label">Descripción</label>
-              <textarea name="descripcion" className="form-control" required />
+              <textarea name="description" className="form-control" required />
             </div>
             <div className="mb-3">
               <label className="form-label">Precio</label>
-              <input type="number" name="precio" className="form-control" step="0.01" min="0" required />
+              <input type="number" name="price" className="form-control" step="0.01" min="0" required />
             </div>
             <div className="mb-3">
               <label className="form-label">Stock</label>
               <input type="number" name="stock" className="form-control" min="0" required />
             </div>
             <div className="mb-3">
-              <label className="form-label">Imagen</label>
-              <input type="file" name="imagen" className="form-control" accept="image/*" required />
+              <label className="form-label">URL de imagen</label>
+              <input type="text" name="image" className="form-control" required />
             </div>
             <div className="mb-3">
               <label className="form-label">Categoría</label>

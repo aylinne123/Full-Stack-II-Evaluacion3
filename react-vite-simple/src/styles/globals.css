@@ -331,3 +331,22 @@ form.d-flex.justify-content-center.mb-4 {
     display: block !important;
   }
 }
+
+/* Redes sociales: estilo limpio y sin botón */
+.contact-social a.btn-link {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #683c02 !important;
+  font-size: 1.3rem;
+  text-decoration: none;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: color 0.2s;
+}
+.contact-social a.btn-link:hover {
+  color: #0a3871 !important;
+  text-decoration: underline;
+}

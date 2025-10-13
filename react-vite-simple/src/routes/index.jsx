@@ -8,11 +8,12 @@ import Cart from "../pages/Cart.jsx";
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<About />} /> {/* Ahora About.jsx es la página principal */}
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/product" element={<Product />} />
       <Route path="/cart" element={<Cart />} />
+      <Route path="/home" element={<Home />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

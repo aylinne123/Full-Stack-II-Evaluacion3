@@ -1,18 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
 /* Reset mínimo */
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
-body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial; background: #fafafa; color: #222; }
+body { 
+  margin: 0; 
+  font-family: 'Comic Neue', 'Fredoka One', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial; 
+  background: #add8e6 url("/26983212_v677-ken-27-animalbadge.jpg") repeat top left; 
+  background-size: 1400px 1000px;
+  color: #222; 
+  min-height: 100vh;
+}
 
 /* Layout */
 .container { max-width: 1100px; margin: 0 auto; padding: 1rem; }
 
 /* Header */
-.header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #eee; z-index: 10; }
-.header__inner { display: flex; align-items: center; justify-content: space-between; }
-.logo { font-weight: 800; letter-spacing: 0.5px; }
+.header { 
+  position: sticky; 
+  top: 0; 
+  background: #add8e6; /* lightblue */
+  border-bottom: 1px solid #eee; 
+  z-index: 10; 
+}
+.header__inner { 
+  display: flex; 
+  align-items: center; 
+  min-height: 80px; /* Mantén bajo para que el header no crezca */
+  gap: 2rem;
+  overflow: visible; /* Permite que el logo sobresalga si es más grande */
+}
+.logo { 
+  font-family: 'Comic Neue', 'Fredoka One', cursive; 
+  font-weight: 800; 
+  letter-spacing: 0.5px; 
+}
+.logo img {
+  height: 110px; /* Aumenta el tamaño del logo */
+  max-width: 140px;
+  object-fit: contain;
+  display: block;
+  margin-top: -30px; /* Ajusta para que el logo sobresalga hacia arriba */
+  margin-bottom: -30px; /* Opcional, para centrar mejor */
+}
 
 /* Nav */
-.nav { display: flex; gap: .75rem; }
+.nav { 
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+}
 .nav__link { text-decoration: none; color: #333; padding: .5rem .75rem; border-radius: 999px; transition: background .2s; }
 .nav__link:hover { background: #f2f2f2; }
 .nav__link.is-active { background: #111; color: #fff; }
@@ -40,4 +80,15 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, Hel
 }
 
 /* Footer */
-.footer { border-top: 1px solid #eee; margin-top: 2rem; padding: 1rem 0; color: #666; font-size: .9rem; }
+.footer { 
+  border-top: 1px solid #eee; 
+  margin-top: 2rem; 
+  padding: 1rem 0; 
+  color: #fff; 
+  font-size: .9rem; 
+  background: #333; /* gris oscuro */
+}
+
+body, h1, h2, h3, h4, h5, h6, p, a, li, label, input, textarea, button, .card, .nav__link, .form, .footer {
+  font-family: 'Comic Neue', 'Fredoka One', system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial !important;
+}

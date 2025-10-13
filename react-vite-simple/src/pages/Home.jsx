@@ -47,7 +47,7 @@ export default function Home() {
       if (res.data && res.data.authToken) {
         setMensaje('Bienvenido');
         localStorage.setItem("userEmail", email); // Guarda el email
-        navigate("/about");
+        navigate("/product"); // Redirige a productos
       } else {
         setMensaje("Credenciales incorrectas.");
       }

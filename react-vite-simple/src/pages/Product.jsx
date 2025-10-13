@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext.jsx";
 import api from "../api/xano";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function esAdmin() {
   const email = localStorage.getItem("userEmail") || "";
@@ -8,6 +9,11 @@ function esAdmin() {
 }
 
 export default function Product() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const params = new URLSearchParams(location.search);
+  const [busqueda, setBusqueda] = useState(params.get("search") || "");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(params.get("category") || "");
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const { carrito, setCarrito } = useCart();
   const [lista, setLista] = useState([]);
@@ -45,8 +51,15 @@ export default function Product() {
   };
 
   // Eliminar producto del catálogo (solo admin)
-  const eliminarProducto = (id) => {
-    setLista(lista.filter((p) => p.id !== id));
+  const eliminarProducto = async (id) => {
+    try {
+      await api.delete(`/product/${id}`);
+      const res = await api.get("/product");
+      setLista(res.data);
+      setMensaje("✅ Producto eliminado correctamente.");
+    } catch (err) {
+      setMensaje("❌ Error al eliminar producto: " + JSON.stringify(err.response?.data || err.message));
+    }
   };
 
   // Opciones de respaldo si la API no responde
@@ -57,15 +70,94 @@ export default function Product() {
     { id: 4, name: "Comida" }
   ];
 
+  const getCategoriaNombre = (id) => {
+    const cat = categorias.find(c => c.id === id) || categoriasFallback.find(c => c.id === id);
+    return cat ? cat.name : "Sin categoría";
+  };
+
+  // Filtra productos después de cargarlos
+  const productosFiltrados = lista.filter(producto => {
+    const matchNombre = busqueda ? producto.name.toLowerCase().includes(busqueda.toLowerCase()) : true;
+    const matchCategoria = categoriaSeleccionada ? String(producto.category) === String(categoriaSeleccionada) : true;
+    return matchNombre && matchCategoria;
+  });
+
+  // Buscador y filtro
+  const handleBuscar = (e) => {
+    e.preventDefault();
+    let url = "/product";
+    const params = [];
+    if (busqueda.trim()) params.push(`search=${encodeURIComponent(busqueda.trim())}`);
+    if (categoriaSeleccionada) params.push(`category=${encodeURIComponent(categoriaSeleccionada)}`);
+    if (params.length > 0) url += "?" + params.join("&");
+    navigate(url);
+  };
+
+  // Muestra mensaje si no hay resultados
+  if (productosFiltrados.length === 0) {
+    return (
+      <div className="container py-5">
+        <form className="d-flex justify-content-center mb-4" onSubmit={handleBuscar}>
+          <input
+            type="text"
+            className="form-control me-2"
+            placeholder="Buscar producto..."
+            value={busqueda}
+            onChange={e => setBusqueda(e.target.value)}
+            style={{ maxWidth: "160px" }}
+          />
+          <select
+            name="categoria"
+            className="form-select me-2"
+            style={{ maxWidth: "140px" }}
+            value={categoriaSeleccionada}
+            onChange={e => setCategoriaSeleccionada(e.target.value)}
+          >
+            <option value="">Todas las categorías</option>
+            {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+          <button className="btn btn-primary" type="submit">Buscar</button>
+        </form>
+        <div className="alert alert-warning text-center">
+          No existe ningún producto con esos criterios.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-5">
-      <h2 className="mb-4 text-center">Catálogo de Productos para Bebés</h2>
+      <form className="d-flex justify-content-center mb-4" onSubmit={handleBuscar}>
+        <input
+          type="text"
+          className="form-control me-2"
+          placeholder="Buscar producto..."
+          value={busqueda}
+          onChange={e => setBusqueda(e.target.value)}
+          style={{ maxWidth: "160px" }}
+        />
+        <select
+          name="categoria"
+          className="form-select me-2"
+          style={{ maxWidth: "140px" }}
+          value={categoriaSeleccionada}
+          onChange={e => setCategoriaSeleccionada(e.target.value)}
+        >
+          <option value="">Todas las categorías</option>
+          {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+        <button className="btn btn-primary" type="submit">Buscar</button>
+      </form>
       <div className="row">
-        {lista.map((producto) => (
+        {productosFiltrados.map((producto) => (
           <div className="col-md-3 mb-4" key={producto.id}>
             <div className="card h-100">
               <img
-                src={typeof producto.image === "string" ? producto.image : producto.image?.url}
+                src={producto.image && producto.image.startsWith("http") ? producto.image : "https://via.placeholder.com/180x180?text=Sin+Imagen"}
                 className="card-img-top"
                 alt={producto.name}
                 style={{ height: "180px", objectFit: "cover" }}
@@ -73,17 +165,15 @@ export default function Product() {
               <div className="card-body d-flex flex-column">
                 <h5 className="card-title">{producto.name}</h5>
                 <p className="card-text">
-                  {producto.description.length > 40
-                    ? producto.description.slice(0, 40) + "..."
-                    : producto.description}
+                  Categoría: {getCategoriaNombre(producto.category)}
                 </p>
-                <div className="mt-auto">
-                  <p className="fw-bold mb-2">${producto.price.toFixed(2)}</p>
+                <p className="fw-bold mb-2">${producto.price.toFixed(2)}</p>
+                <div className="d-flex gap-2">
                   <button
-                    className="btn btn-sm btn-primary me-2"
+                    className="btn btn-sm btn-primary"
                     onClick={() => setProductoSeleccionado(producto)}
                   >
-                    Ver descripción
+                    Ver detalles
                   </button>
                   <button
                     className="btn btn-sm btn-success"
@@ -93,7 +183,7 @@ export default function Product() {
                   </button>
                   {esAdmin() && (
                     <button
-                      className="btn btn-sm btn-danger ms-2"
+                      className="btn btn-sm btn-danger"
                       onClick={() => eliminarProducto(producto.id)}
                     >
                       Eliminar
@@ -212,7 +302,7 @@ export default function Product() {
               <label className="form-label">Categoría</label>
               <select name="category" className="form-control" required>
                 <option value="">Selecciona una categoría</option>
-                {((Array.isArray(categorias) && categorias.length > 0) ? categorias : categoriasFallback).map(cat => (
+                {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>

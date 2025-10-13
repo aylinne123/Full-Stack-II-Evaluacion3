@@ -1,82 +1,62 @@
 import { useCart } from "../context/CartContext.jsx";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/xano";
+
+function esAdmin() {
+  const email = localStorage.getItem("userEmail") || "";
+  return email.endsWith("@duocuc.cl");
+}
+
+function estaLogueado() {
+  return !!localStorage.getItem("userEmail");
+}
 
 export default function Cart() {
   const { carrito, setCarrito } = useCart();
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    price: "",
-    stock: "",
-    image: "",
-    category: "",
-  });
-  const [mensaje, setMensaje] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [categorias, setCategorias] = useState([]);
   const [metodoPago, setMetodoPago] = useState("tarjeta");
   const [envio, setEnvio] = useState("retiro");
   const [direccion, setDireccion] = useState("");
+  const [boleta, setBoleta] = useState(null);
+  const [showPopup, setShowPopup] = useState(false); // Nuevo estado
+  const navigate = useNavigate();
+
+  // Calcula el subtotal y total
+  const subtotal = carrito.reduce(
+    (acc, prod) => acc + (prod.price || prod.precio),
+    0
+  );
   const recargoEnvio = envio === "domicilio" ? 3000 : 0;
-
-  const total = carrito.reduce((acc, prod) => acc + prod.precio, 0) + recargoEnvio;
-
-  // Cargar categorías desde Xano
-  useEffect(() => {
-    async function fetchCategorias() {
-      try {
-        const res = await api.get("/category");
-        setCategorias(res.data);
-      } catch (err) {
-        setCategorias([]);
-      }
-    }
-    fetchCategorias();
-  }, []);
-
-  // Maneja el cambio de los campos del formulario
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // Envía el nuevo producto a Xano
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMensaje("");
-    try {
-      const res = await api.post("/product", {
-        name: form.name,
-        description: form.description,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock),
-        image: form.image,
-        category: parseInt(form.category),
-      });
-      setMensaje("✅ Producto agregado correctamente.");
-      setForm({
-        name: "",
-        description: "",
-        price: "",
-        stock: "",
-        image: "",
-        category: "",
-      });
-    } catch (err) {
-      setMensaje(
-        "❌ Error al agregar producto: " +
-          (err.response?.data?.message || err.message)
-      );
-    }
-    setLoading(false);
-  };
+  const total = subtotal + recargoEnvio;
 
   // Elimina un producto del carrito
   const eliminarDelCarrito = (idx) => {
     const nuevoCarrito = [...carrito];
     nuevoCarrito.splice(idx, 1);
     setCarrito(nuevoCarrito);
+  };
+
+  // Finalizar compra solo si usuario normal y logueado
+  const puedeComprar = estaLogueado() && !esAdmin() && carrito.length > 0;
+
+  const handleFinalizarCompra = (e) => {
+    e.preventDefault();
+    if (!estaLogueado()) {
+      setShowPopup(true);
+      return;
+    }
+    // Muestra la boleta
+    setBoleta({
+      productos: carrito,
+      subtotal,
+      recargoEnvio,
+      total,
+      metodoPago,
+      envio,
+      direccion: envio === "domicilio" ? direccion : "Retiro en tienda",
+      fecha: new Date().toLocaleString(),
+    });
+    setCarrito([]);
   };
 
   return (
@@ -99,7 +79,9 @@ export default function Cart() {
                     >
                       <div>
                         <strong>{prod.name}</strong> <br />
-                        <span className="text-muted">${prod.price.toFixed(2)}</span>
+                        <span className="text-muted">
+                          ${ (prod.price || prod.precio).toFixed(2) }
+                        </span>
                       </div>
                       <button
                         className="btn btn-sm btn-danger"
@@ -118,7 +100,7 @@ export default function Cart() {
                   <select
                     className="form-select"
                     value={metodoPago}
-                    onChange={e => setMetodoPago(e.target.value)}
+                    onChange={(e) => setMetodoPago(e.target.value)}
                   >
                     <option value="tarjeta">Tarjeta de crédito/débito</option>
                     <option value="transferencia">Transferencia bancaria</option>
@@ -162,7 +144,7 @@ export default function Cart() {
                       type="text"
                       className="form-control"
                       value={direccion}
-                      onChange={e => setDireccion(e.target.value)}
+                      onChange={(e) => setDireccion(e.target.value)}
                       required
                     />
                   </div>
@@ -174,7 +156,7 @@ export default function Cart() {
                 <ul className="list-group">
                   <li className="list-group-item d-flex justify-content-between">
                     <span>Subtotal</span>
-                    <span>${carrito.reduce((acc, prod) => acc + prod.precio, 0).toFixed(2)}</span>
+                    <span>${subtotal.toFixed(2)}</span>
                   </li>
                   <li className="list-group-item d-flex justify-content-between">
                     <span>Recargo por envío</span>
@@ -186,14 +168,98 @@ export default function Cart() {
                   </li>
                 </ul>
               </div>
-
-              <button className="btn btn-success w-100" disabled={carrito.length === 0}>
+              
+              <button
+                className="btn btn-success w-100"
+                onClick={handleFinalizarCompra}
+              >
                 Finalizar compra
               </button>
+
+              {/* Pop-up si no está logueado */}
+              {showPopup && (
+                <div
+                  className="modal fade show"
+                  style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+                  tabIndex="-1"
+                  onClick={() => setShowPopup(false)}
+                >
+                  <div
+                    className="modal-dialog"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div className="modal-content">
+                      <div className="modal-header">
+                        <h5 className="modal-title">¡Debes iniciar sesión!</h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={() => setShowPopup(false)}
+                        ></button>
+                      </div>
+                      <div className="modal-body">
+                        <p>Para finalizar la compra debes iniciar sesión.</p>
+                      </div>
+                      <div className="modal-footer">
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => {
+                            setShowPopup(false);
+                            navigate("/");
+                          }}
+                        >
+                          Ir al login
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Boleta */}
+      {boleta && (
+        <div className="row justify-content-center mt-4">
+          <div className="col-lg-8">
+            <div className="card border-success">
+              <div className="card-header bg-success text-white">
+                <h4 className="mb-0">Boleta de compra</h4>
+              </div>
+              <div className="card-body">
+                <p>
+                  <strong>Fecha:</strong> {boleta.fecha}
+                </p>
+                <p>
+                  <strong>Método de pago:</strong> {boleta.metodoPago}
+                </p>
+                <p>
+                  <strong>Entrega:</strong>{" "}
+                  {boleta.envio === "domicilio"
+                    ? "Domicilio"
+                    : "Retiro en tienda"}
+                </p>
+                <p>
+                  <strong>Dirección:</strong> {boleta.direccion}
+                </p>
+                <h5>Productos comprados:</h5>
+                <ul className="list-group mb-3">
+                  {boleta.productos.map((prod, idx) => (
+                    <li className="list-group-item" key={idx}>
+                      {prod.name} - ${ (prod.price || prod.precio).toFixed(2) }
+                    </li>
+                  ))}
+                </ul>
+                <h5 className="fw-bold text-end">
+                  Total pagado: ${boleta.total.toFixed(2)}
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

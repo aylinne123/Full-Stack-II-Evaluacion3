@@ -20,7 +20,6 @@ export default function Product() {
   const [mensaje, setMensaje] = useState("");
   const [categorias, setCategorias] = useState([]);
 
-  // Cargar categorías desde Xano
   useEffect(() => {
     async function fetchCategorias() {
       try {
@@ -33,7 +32,6 @@ export default function Product() {
     fetchCategorias();
   }, []);
 
-  // Cargar productos desde Xano
   useEffect(() => {
     async function fetchProductos() {
       try {
@@ -50,7 +48,6 @@ export default function Product() {
     setCarrito([...carrito, producto]);
   };
 
-  // Eliminar producto del catálogo (solo admin)
   const eliminarProducto = async (id) => {
     try {
       await api.delete(`/product/${id}`);
@@ -62,7 +59,6 @@ export default function Product() {
     }
   };
 
-  // Opciones de respaldo si la API no responde
   const categoriasFallback = [
     { id: 1, name: "Higiene" },
     { id: 2, name: "Juguetes" },
@@ -75,14 +71,12 @@ export default function Product() {
     return cat ? cat.name : "Sin categoría";
   };
 
-  // Filtra productos después de cargarlos
   const productosFiltrados = lista.filter(producto => {
     const matchNombre = busqueda ? producto.name.toLowerCase().includes(busqueda.toLowerCase()) : true;
     const matchCategoria = categoriaSeleccionada ? String(producto.category) === String(categoriaSeleccionada) : true;
     return matchNombre && matchCategoria;
   });
 
-  // Buscador y filtro
   const handleBuscar = (e) => {
     e.preventDefault();
     let url = "/product";
@@ -93,35 +87,39 @@ export default function Product() {
     navigate(url);
   };
 
-  // Muestra mensaje si no hay resultados
+  // Mensaje si no hay resultados
   if (productosFiltrados.length === 0) {
     return (
       <div className="container py-5">
-        <form className="d-flex justify-content-center mb-4" onSubmit={handleBuscar}>
-          <input
-            type="text"
-            className="form-control me-2"
-            placeholder="Buscar producto..."
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            style={{ maxWidth: "160px" }}
-          />
-          <select
-            name="categoria"
-            className="form-select me-2"
-            style={{ maxWidth: "140px" }}
-            value={categoriaSeleccionada}
-            onChange={e => setCategoriaSeleccionada(e.target.value)}
-          >
-            <option value="">Todas las categorías</option>
-            {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-          <button className="btn btn-primary" type="submit">Buscar</button>
-        </form>
-        <div className="alert alert-warning text-center">
-          No existe ningún producto con esos criterios.
+        <div className="row justify-content-center">
+          <div className="col-12 col-md-10">
+            <form className="d-flex flex-column flex-md-row justify-content-center align-items-center mb-4 gap-2" onSubmit={handleBuscar}>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar producto..."
+                value={busqueda}
+                onChange={e => setBusqueda(e.target.value)}
+                style={{ maxWidth: "220px" }}
+              />
+              <select
+                name="categoria"
+                className="form-select"
+                style={{ maxWidth: "180px" }}
+                value={categoriaSeleccionada}
+                onChange={e => setCategoriaSeleccionada(e.target.value)}
+              >
+                <option value="">Todas las categorías</option>
+                {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              <button className="btn btn-primary" type="submit">Buscar</button>
+            </form>
+            <div className="alert alert-warning text-center">
+              No existe ningún producto con esos criterios.
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -129,32 +127,36 @@ export default function Product() {
 
   return (
     <div className="container py-5">
-      <form className="d-flex justify-content-center mb-4" onSubmit={handleBuscar}>
-        <input
-          type="text"
-          className="form-control me-2"
-          placeholder="Buscar producto..."
-          value={busqueda}
-          onChange={e => setBusqueda(e.target.value)}
-          style={{ maxWidth: "160px" }}
-        />
-        <select
-          name="categoria"
-          className="form-select me-2"
-          style={{ maxWidth: "140px" }}
-          value={categoriaSeleccionada}
-          onChange={e => setCategoriaSeleccionada(e.target.value)}
-        >
-          <option value="">Todas las categorías</option>
-          {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-        <button className="btn btn-primary" type="submit">Buscar</button>
-      </form>
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-10">
+          <form className="d-flex flex-column flex-md-row justify-content-center align-items-center mb-4 gap-2" onSubmit={handleBuscar}>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Buscar producto..."
+              value={busqueda}
+              onChange={e => setBusqueda(e.target.value)}
+              style={{ maxWidth: "220px" }}
+            />
+            <select
+              name="categoria"
+              className="form-select"
+              style={{ maxWidth: "180px" }}
+              value={categoriaSeleccionada}
+              onChange={e => setCategoriaSeleccionada(e.target.value)}
+            >
+              <option value="">Todas las categorías</option>
+              {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+            <button className="btn btn-primary" type="submit">Buscar</button>
+          </form>
+        </div>
+      </div>
       <div className="row">
         {productosFiltrados.map((producto) => (
-          <div className="col-md-3 mb-4" key={producto.id}>
+          <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" key={producto.id}>
             <div className="card h-100">
               <img
                 src={producto.image && producto.image.startsWith("http") ? producto.image : "https://via.placeholder.com/180x180?text=Sin+Imagen"}
@@ -168,7 +170,7 @@ export default function Product() {
                   Categoría: {getCategoriaNombre(producto.category)}
                 </p>
                 <p className="fw-bold mb-2">${producto.price.toFixed(2)}</p>
-                <div className="d-flex gap-2">
+                <div className="d-flex gap-2 flex-wrap">
                   <button
                     className="btn btn-sm btn-primary"
                     onClick={() => setProductoSeleccionado(producto)}
@@ -252,66 +254,68 @@ export default function Product() {
 
       {/* Formulario para agregar productos SOLO si es admin */}
       {esAdmin() && (
-        <div className="mt-5">
-          <h4 className="mb-3">Agregar nuevo producto (solo admin)</h4>
-          <form
-            className="card p-4"
-            onSubmit={async e => {
-              e.preventDefault();
-              setMensaje("");
-              try {
-                const formData = new FormData();
-                formData.append("name", e.target.name.value);
-                formData.append("description", e.target.description.value);
-                formData.append("price", parseFloat(e.target.price.value));
-                formData.append("stock", parseInt(e.target.stock.value));
-                formData.append("category", parseInt(e.target.category.value));
-                formData.append("image", e.target.image.value); // Ahora es una URL
+        <div className="row justify-content-center mt-5">
+          <div className="col-12 col-md-8 col-lg-6">
+            <h4 className="mb-3">Agregar nuevo producto (solo admin)</h4>
+            <form
+              className="card p-4"
+              onSubmit={async e => {
+                e.preventDefault();
+                setMensaje("");
+                try {
+                  const formData = new FormData();
+                  formData.append("name", e.target.name.value);
+                  formData.append("description", e.target.description.value);
+                  formData.append("price", parseFloat(e.target.price.value));
+                  formData.append("stock", parseInt(e.target.stock.value));
+                  formData.append("category", parseInt(e.target.category.value));
+                  formData.append("image", e.target.image.value);
 
-                await api.post("/product", formData);
-                const resLista = await api.get("/product");
-                setLista(resLista.data);
-                setMensaje("✅ Producto agregado correctamente.");
-                e.target.reset();
-              } catch (err) {
-                setMensaje("❌ Error al agregar producto: " + JSON.stringify(err.response?.data || err.message));
-              }
-            }}
-          >
-            <div className="mb-3">
-              <label className="form-label">Nombre</label>
-              <input type="text" name="name" className="form-control" required />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Descripción</label>
-              <textarea name="description" className="form-control" required />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Precio</label>
-              <input type="number" name="price" className="form-control" step="0.01" min="0" required />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Stock</label>
-              <input type="number" name="stock" className="form-control" min="0" required />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">URL de imagen</label>
-              <input type="text" name="image" className="form-control" required />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Categoría</label>
-              <select name="category" className="form-control" required>
-                <option value="">Selecciona una categoría</option>
-                {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Agregar producto
-            </button>
-            {mensaje && <div className="alert alert-info mt-3">{mensaje}</div>}
-          </form>
+                  await api.post("/product", formData);
+                  const resLista = await api.get("/product");
+                  setLista(resLista.data);
+                  setMensaje("✅ Producto agregado correctamente.");
+                  e.target.reset();
+                } catch (err) {
+                  setMensaje("❌ Error al agregar producto: " + JSON.stringify(err.response?.data || err.message));
+                }
+              }}
+            >
+              <div className="mb-3">
+                <label className="form-label">Nombre</label>
+                <input type="text" name="name" className="form-control" required />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Descripción</label>
+                <textarea name="description" className="form-control" required />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Precio</label>
+                <input type="number" name="price" className="form-control" step="0.01" min="0" required />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Stock</label>
+                <input type="number" name="stock" className="form-control" min="0" required />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">URL de imagen</label>
+                <input type="text" name="image" className="form-control" required />
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Categoría</label>
+                <select name="category" className="form-control" required>
+                  <option value="">Selecciona una categoría</option>
+                  {(Array.isArray(categorias) && categorias.length > 0 ? categorias : categoriasFallback).map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="btn btn-primary w-100">
+                Agregar producto
+              </button>
+              {mensaje && <div className="alert alert-info mt-3">{mensaje}</div>}
+            </form>
+          </div>
         </div>
       )}
     </div>

@@ -3,34 +3,32 @@ import "./about.css";
 export default function About() {
   return (
     <div className="container py-5">
-      {/* Carrusel de imágenes de bebés */}
-      <div className="mb-5">
-        <h1 className="text-center mb-4">Nosotros</h1>
-        <div id="babyCarousel" className="carousel slide" data-bs-ride="carousel">
-          <div className="carousel-inner rounded shadow">
-            <div className="carousel-item active">
-              <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Bebé 1" style={{height: "350px", objectFit: "cover"}} />
-            </div>
-            <div className="carousel-item">
-              <img src="https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Bebé 2" style={{height: "350px", objectFit: "cover"}} />
-            </div>
-            <div className="carousel-item">
-              <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80" className="d-block w-100" alt="Bebé 3" style={{height: "350px", objectFit: "cover"}} />
-            </div>
+        <div className="mb-5">
+          <div id="babyCarousel" className="carousel slide" data-bs-ride="carousel">
+            <div className="carousel-inner rounded shadow">
+          <div className="carousel-item active">
+            <img src="/bienvenidosfoto.png" className="d-block w-100" alt="Bebé 1" style={{height: "220px", objectFit: "contain"}} />
           </div>
-          <button className="carousel-control-prev" type="button" data-bs-target="#babyCarousel" data-bs-slide="prev">
-            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-          </button>
-          <button className="carousel-control-next" type="button" data-bs-target="#babyCarousel" data-bs-slide="next">
-            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-          </button>
+          <div className="carousel-item">
+            <img src="/osojuguetes.png" className="d-block w-100" alt="Bebé 2" style={{height: "220px", objectFit: "contain"}} />
+          </div>
+          <div className="carousel-item">
+            <img src="/bebesriendo-removebg-preview.png" className="d-block w-100" alt="Bebé 3" style={{height: "220px", objectFit: "contain"}} />
+          </div>
+            </div>
+            <button className="carousel-control-prev" type="button" data-bs-target="#babyCarousel" data-bs-slide="prev">
+          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+            </button>
+            <button className="carousel-control-next" type="button" data-bs-target="#babyCarousel" data-bs-slide="next">
+          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p className="mt-4 text-center">
+            Somos apasionados por el bienestar de los bebés y la tranquilidad de las familias. Descubre nuestros productos y consejos para la maternidad. Lorem ipsum dolor sit amet consectetur adipisicing elit. Non voluptatibus nobis sequi dolores at dolor optio, provident explicabo sunt impedit molestias veritatis obcaecati vero placeat distinctio eos laboriosam, totam animi!
+          </p>
         </div>
-        <p className="mt-4 text-center">
-          Somos apasionados por el bienestar de los bebés y la tranquilidad de las familias. Descubre nuestros productos y consejos para la maternidad.
-        </p>
-      </div>
 
-      {/* Productos destacados */}
+        {/* Productos destacados */}
       <div className="mb-5">
         <h2 className="mb-4 text-center">Productos Destacados</h2>
         <div className="row justify-content-center d-flex gap-3">

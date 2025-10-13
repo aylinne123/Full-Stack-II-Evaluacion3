@@ -8,40 +8,13 @@ export default function Header() {
   const { carrito } = useCart();
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
-  const [busqueda, setBusqueda] = useState("");
-  const [resultados, setResultados] = useState([]);
-  const [mensajeBusqueda, setMensajeBusqueda] = useState("");
-  const [categorias, setCategorias] = useState([]);
-
-  // Cargar categorías para el select
-  useEffect(() => {
-    async function fetchCategorias() {
-      try {
-        const res = await api.get("/category");
-        setCategorias(res.data);
-      } catch {
-        setCategorias([]);
-      }
-    }
-    fetchCategorias();
-  }, []);
 
   const handleSignOut = () => {
     localStorage.removeItem("userEmail");
     navigate("/");
   };
 
-  const handleBuscar = (e) => {
-    e.preventDefault();
-    const query = busqueda.trim();
-    const categoria = e.target.categoria.value;
-    let url = "/product";
-    const params = [];
-    if (query) params.push(`search=${encodeURIComponent(query)}`);
-    if (categoria) params.push(`category=${encodeURIComponent(categoria)}`);
-    if (params.length > 0) url += "?" + params.join("&");
-    navigate(url);
-  };
+  const handleNavClick = () => setOpen(false);
 
   return (
     <header className="header">
@@ -57,69 +30,89 @@ export default function Header() {
             }}
           />
         </Link>
-        <nav className={`nav ${open ? "nav--open" : ""}`}>
-          {!userEmail && (
+        <div className="header-nav-group">
+          <button
+            className="menu-btn"
+            onClick={() => setOpen(!open)}
+            aria-label="Abrir menú"
+          >
+            <span className="menu-icon"></span>
+          </button>
+          <nav className={`nav${open ? " nav--open" : ""}`}>
+            {!userEmail && (
+              <NavLink
+                to="/home"
+                end
+                className={({ isActive }) =>
+                  "nav__link" + (isActive ? " is-active" : "")
+                }
+                onClick={handleNavClick}
+              >
+                Login
+              </NavLink>
+            )}
             <NavLink
-              to="/home"
-              end
+              to="/about"
               className={({ isActive }) =>
                 "nav__link" + (isActive ? " is-active" : "")
               }
+              onClick={handleNavClick}
             >
-              Login
+              Nosotros
             </NavLink>
-          )}
-          <NavLink
-            to="/about"
-            className={({ isActive }) =>
-              "nav__link" + (isActive ? " is-active" : "")
-            }
-          >
-            Nosotros
-          </NavLink>
-          <NavLink
-            to="/contact"
-            className={({ isActive }) =>
-              "nav__link" + (isActive ? " is-active" : "")
-            }
-          >
-            Contacto
-          </NavLink>
-          <NavLink
-            to="/product"
-            className={({ isActive }) =>
-              "nav__link" + (isActive ? " is-active" : "")
-            }
-          >
-            Productos
-          </NavLink>
-          <NavLink to="/cart" className="nav__link position-relative ms-3">
-            🛒
-            {carrito.length > 0 && (
-              <span
-                className="badge bg-danger position-absolute"
-                style={{
-                  top: "-8px",
-                  right: "-10px",
-                  fontSize: "0.8rem",
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                "nav__link" + (isActive ? " is-active" : "")
+              }
+              onClick={handleNavClick}
+            >
+              Contacto
+            </NavLink>
+            <NavLink
+              to="/product"
+              className={({ isActive }) =>
+                "nav__link" + (isActive ? " is-active" : "")
+              }
+              onClick={handleNavClick}
+            >
+              Productos
+            </NavLink>
+            <NavLink
+              to="/cart"
+              className="nav__link position-relative ms-3"
+              onClick={handleNavClick}
+            >
+              <span style={{ fontSize: "2rem", verticalAlign: "middle" }}>🛒</span>
+              {carrito.length > 0 && (
+                <span
+                  className="badge bg-danger position-absolute"
+                  style={{
+                    top: "-8px",
+                    right: "-10px",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  {carrito.length}
+                </span>
+              )}
+            </NavLink>
+            {userEmail && (
+              <span className="ms-3 text-primary fw-bold">{userEmail}</span>
+            )}
+            {userEmail && (
+              <button
+                className="btn btn-outline-danger ms-3"
+                onClick={() => {
+                  handleSignOut();
+                  handleNavClick();
                 }}
               >
-                {carrito.length}
-              </span>
+                Sign Out
+              </button>
             )}
-          </NavLink>
-          {userEmail && (
-            <span className="ms-3 text-primary fw-bold">{userEmail}</span>
-          )}
-          {userEmail && (
-            <button
-              className="btn btn-outline-danger ms-3"
-              onClick={handleSignOut}
-            >
-              Sign Out
-            </button>
-          )}
-        </nav>
+          </nav>
+        </div>
       </div>
     </header>
   );

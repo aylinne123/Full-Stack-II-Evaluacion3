@@ -1,5 +1,9 @@
 🍼 BabyWorld — Plataforma de Productos para Bebés
 
+Integrantes:
+- Ricardo Galdames
+- Aylinne Lopez
+
 BabyWorld es una aplicación web orientada a la venta de productos para bebés.
 Incluye catálogo, detalle de productos, carrito, autenticación de usuarios, panel para administradores y conexión completa con Xano como backend.
 
@@ -46,7 +50,7 @@ https://x8ki-letl-twmt.n7.xano.io/api:XPBVoXLp
 👥 Usuarios de Prueba
 Administrador
 
-Email: ayl.lopes@duocuc.cl
+Email: ayl.lopez@duocuc.cl
 
 Contraseña: Hola1234!
 

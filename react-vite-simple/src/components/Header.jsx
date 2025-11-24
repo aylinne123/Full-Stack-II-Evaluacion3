@@ -8,6 +8,7 @@ export default function Header() {
   const { carrito } = useCart();
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
+  const esAdmin = userEmail && userEmail.endsWith("@duocuc.cl");
 
   const handleSignOut = () => {
     localStorage.removeItem("userEmail");
@@ -78,6 +79,17 @@ export default function Header() {
             >
               Productos
             </NavLink>
+            {esAdmin && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  "nav__link" + (isActive ? " is-active" : "")
+                }
+                onClick={handleNavClick}
+              >
+                👤 Admin
+              </NavLink>
+            )}
             <NavLink
               to="/cart"
               className="nav__link position-relative ms-3"

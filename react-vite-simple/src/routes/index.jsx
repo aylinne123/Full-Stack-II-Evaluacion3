@@ -4,6 +4,7 @@ import About from "../pages/About.jsx";
 import Contact from "../pages/Contact.jsx";
 import Product from "../pages/Product.jsx";
 import Cart from "../pages/Cart.jsx";
+import Admin from "../pages/Admin.jsx";
 
 export function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ export function AppRoutes() {
       <Route path="/product" element={<Product />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/admin" element={<Admin />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -14,7 +14,7 @@ export default function Home() {
     e.preventDefault();
     try {
       const res = await api.post(
-        "https://x8ki-letl-twmt.n7.xano.io/api:LojBMxv1/auth/signup",
+        "https://x8ki-letl-twmt.n7.xano.io/api:os3AMWEA/auth/signup",
         {
           name: nombre,
           email: email,
@@ -37,7 +37,7 @@ export default function Home() {
     e.preventDefault();
     try {
       const res = await api.post(
-        "https://x8ki-letl-twmt.n7.xano.io/api:LojBMxv1/auth/login",
+        "https://x8ki-letl-twmt.n7.xano.io/api:os3AMWEA/auth/login",
         {
           email,
           password,

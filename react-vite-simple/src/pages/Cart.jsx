@@ -1,5 +1,5 @@
 import { useCart } from "../context/CartContext.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/xano";
 
@@ -18,8 +18,34 @@ export default function Cart() {
   const [envio, setEnvio] = useState("retiro");
   const [direccion, setDireccion] = useState("");
   const [boleta, setBoleta] = useState(null);
-  const [showPopup, setShowPopup] = useState(false); // Nuevo estado
+  const [showPopup, setShowPopup] = useState(false);
+  const [misCompras, setMisCompras] = useState([]);
+  const [vistaActiva, setVistaActiva] = useState("carrito"); // 'carrito' o 'historial'
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Cargar historial de compras al montar el componente
+  useEffect(() => {
+    if (estaLogueado() && !esAdmin()) {
+      cargarMisCompras();
+    }
+  }, []);
+
+  const cargarMisCompras = async () => {
+    try {
+      setLoading(true);
+      const userEmail = localStorage.getItem("userEmail");
+      // Asumiendo que tienes un endpoint GET /purchase que devuelve las compras del usuario
+      const res = await api.get("/purchase");
+      // Filtrar las compras del usuario actual
+      const comprasDelUsuario = res.data.filter(compra => compra.user_email === userEmail);
+      setMisCompras(comprasDelUsuario);
+    } catch (err) {
+      console.error("Error al cargar compras:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Calcula el subtotal y total
   const subtotal = carrito.reduce(
@@ -39,29 +65,82 @@ export default function Cart() {
   // Finalizar compra solo si usuario normal y logueado
   const puedeComprar = estaLogueado() && !esAdmin() && carrito.length > 0;
 
-  const handleFinalizarCompra = (e) => {
+  const handleFinalizarCompra = async (e) => {
     e.preventDefault();
     if (!estaLogueado()) {
       setShowPopup(true);
       return;
     }
-    // Muestra la boleta
-    setBoleta({
-      productos: carrito,
-      subtotal,
-      recargoEnvio,
-      total,
-      metodoPago,
-      envio,
-      direccion: envio === "domicilio" ? direccion : "Retiro en tienda",
-      fecha: new Date().toLocaleString(),
-    });
-    setCarrito([]);
+
+    try {
+      // Guardar la compra en Xano
+      const compraData = {
+        user_email: localStorage.getItem("userEmail"),
+        productos: JSON.stringify(carrito), // Guardar como JSON string
+        subtotal: subtotal,
+        recargo_envio: recargoEnvio,
+        total: total,
+        metodo_pago: metodoPago,
+        tipo_envio: envio,
+        direccion: envio === "domicilio" ? direccion : "Retiro en tienda",
+        estado: "completada"
+      };
+
+      console.log("📦 Guardando compra:", compraData);
+      const response = await api.post("/purchase", compraData);
+      console.log("✅ Compra guardada:", response.data);
+
+      // Mostrar la boleta
+      setBoleta({
+        productos: carrito,
+        subtotal,
+        recargoEnvio,
+        total,
+        metodoPago,
+        envio,
+        direccion: envio === "domicilio" ? direccion : "Retiro en tienda",
+        fecha: new Date().toLocaleString(),
+      });
+
+      setCarrito([]);
+      cargarMisCompras(); // Recargar historial
+    } catch (err) {
+      console.error("❌ Error al guardar compra:", err);
+      alert("Error al procesar la compra. Por favor intenta de nuevo.");
+    }
   };
 
   return (
     <div className="container py-5">
-      <div className="row justify-content-center">
+      {/* Pestañas de navegación */}
+      {estaLogueado() && !esAdmin() && (
+        <div className="row justify-content-center mb-4">
+          <div className="col-lg-8">
+            <ul className="nav nav-tabs">
+              <li className="nav-item">
+                <button
+                  className={`nav-link ${vistaActiva === "carrito" ? "active" : ""}`}
+                  onClick={() => setVistaActiva("carrito")}
+                >
+                  🛒 Carrito de Compras
+                </button>
+              </li>
+              <li className="nav-item">
+                <button
+                  className={`nav-link ${vistaActiva === "historial" ? "active" : ""}`}
+                  onClick={() => setVistaActiva("historial")}
+                >
+                  📋 Mis Compras ({misCompras.length})
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Vista del Carrito */}
+      {vistaActiva === "carrito" && (
+        <div className="row justify-content-center">
         <div className="col-lg-8">
           <div className="card shadow mb-4">
             <div className="card-body">
@@ -104,7 +183,6 @@ export default function Cart() {
                   >
                     <option value="tarjeta">Tarjeta de crédito/débito</option>
                     <option value="transferencia">Transferencia bancaria</option>
-                    <option value="efectivo">Efectivo</option>
                   </select>
                 </div>
 
@@ -218,7 +296,98 @@ export default function Cart() {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
+
+      {/* Vista del Historial de Compras */}
+      {vistaActiva === "historial" && (
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="card shadow mb-4">
+              <div className="card-body">
+                <h2 className="mb-4 text-center">📋 Historial de Compras</h2>
+                
+                {loading ? (
+                  <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Cargando...</span>
+                    </div>
+                  </div>
+                ) : misCompras.length === 0 ? (
+                  <div className="alert alert-info text-center">
+                    No tienes compras registradas aún.
+                  </div>
+                ) : (
+                  <div className="accordion" id="accordionCompras">
+                    {misCompras.map((compra, idx) => {
+                      const productos = JSON.parse(compra.productos || "[]");
+                      return (
+                        <div className="accordion-item" key={compra.id}>
+                          <h2 className="accordion-header" id={`heading${idx}`}>
+                            <button
+                              className="accordion-button collapsed"
+                              type="button"
+                              data-bs-toggle="collapse"
+                              data-bs-target={`#collapse${idx}`}
+                              aria-expanded="false"
+                              aria-controls={`collapse${idx}`}
+                            >
+                              <div className="d-flex justify-content-between w-100 pe-3">
+                                <span>
+                                  <strong>Compra #{compra.id}</strong> - {new Date(compra.created_at).toLocaleDateString()}
+                                </span>
+                                <span className="text-primary fw-bold">
+                                  Total: ${compra.total.toFixed(2)}
+                                </span>
+                              </div>
+                            </button>
+                          </h2>
+                          <div
+                            id={`collapse${idx}`}
+                            className="accordion-collapse collapse"
+                            aria-labelledby={`heading${idx}`}
+                            data-bs-parent="#accordionCompras"
+                          >
+                            <div className="accordion-body">
+                              <div className="row mb-3">
+                                <div className="col-md-6">
+                                  <p><strong>Fecha:</strong> {new Date(compra.created_at).toLocaleString()}</p>
+                                  <p><strong>Método de pago:</strong> {compra.metodo_pago}</p>
+                                  <p><strong>Tipo de envío:</strong> {compra.tipo_envio === "domicilio" ? "Domicilio" : "Retiro en tienda"}</p>
+                                </div>
+                                <div className="col-md-6">
+                                  <p><strong>Dirección:</strong> {compra.direccion}</p>
+                                  <p><strong>Estado:</strong> <span className="badge bg-success">{compra.estado}</span></p>
+                                </div>
+                              </div>
+                              
+                              <h6>Productos:</h6>
+                              <ul className="list-group mb-3">
+                                {productos.map((prod, pidx) => (
+                                  <li className="list-group-item d-flex justify-content-between" key={pidx}>
+                                    <span>{prod.name}</span>
+                                    <span className="text-muted">${(prod.price || prod.precio).toFixed(2)}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              
+                              <div className="text-end">
+                                <p className="mb-1">Subtotal: ${compra.subtotal.toFixed(2)}</p>
+                                <p className="mb-1">Envío: ${compra.recargo_envio.toFixed(2)}</p>
+                                <h5 className="fw-bold text-primary">Total: ${compra.total.toFixed(2)}</h5>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Boleta */}
       {boleta && (

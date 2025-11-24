@@ -1,4 +1,4 @@
-#🍼 BabyWorld — Plataforma de Productos para Bebés
+🍼 BabyWorld — Plataforma de Productos para Bebés
 
 BabyWorld es una aplicación web orientada a la venta de productos para bebés.
 Incluye catálogo, detalle de productos, carrito, autenticación de usuarios, panel para administradores y conexión completa con Xano como backend.
@@ -104,20 +104,20 @@ Como se mencionó arriba:
 
 📦 Funcionalidades del Proyecto
 
-Catálogo de productos dinámico
+- Catálogo de productos dinámico
 
-Carrusel de imágenes por producto
+- Carrusel de imágenes por producto
 
-Carrito de compras
+- Carrito de compras
 
-Login, registro y logout
+- Login, registro y logout
 
-Roles: Administrador y Cliente
+- Roles: Administrador y Cliente
 
-CRUD de productos desde panel admin
+- CRUD de productos desde panel admin
 
-Conexión completa con Xano
+- Conexión completa con Xano
 
-Manejo de imágenes múltiples
+- Manejo de imágenes múltiples
 
-Diseño responsive
+- Diseño responsive
